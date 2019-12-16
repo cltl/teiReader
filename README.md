@@ -15,7 +15,7 @@ Binding was tested with `xjc` version 2.3.1 under Java 10. Compilation may run u
 
 To extract text from a TEI file, run:
 
->   bash extract_text.sh <path-to-TEI-input-file> <out-dir>
+>   bash extract_text.sh [path-to-TEI-input-file] [out-dir]
   
 
 ## XML-Java binding and code generation
