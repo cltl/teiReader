@@ -1,11 +1,13 @@
 package tei_text;
 
+import org.apache.commons.cli.*;
 import xjc.tei2.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TextExtracter {
     TEI2 tei;
@@ -103,15 +106,85 @@ public class TextExtracter {
         return splitPages(paragraphs);
     }
 
-    public static void main(String[] args) {
-        if (args.length != 2) {
-            System.out.println("Expected two parameters: [infile] [outDir]. Found " + args.length);
-            System.exit(1);
+    private static void usage(Options options) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp( "textExtracter", options);
+        System.exit(1);
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        Options options = new Options();
+        options.addOption("p", false, "separate page files");
+        options.addOption("d", true, "output directory");
+        options.addOption("i", true, "input file / directory");
+        CommandLineParser parser = new DefaultParser();
+        try {
+            CommandLine cmd = parser.parse(options, args);
+            if (! cmd.hasOption('i')) {
+                System.out.println("Please specify an input file or directory");
+                usage(options);
+            }
+            final String outdir = cmd.hasOption('d') ? cmd.getOptionValue('d') : "";
+            try (Stream<Path> paths = Files.walk(Paths.get(cmd.getOptionValue('i')))) {
+                paths.filter(Files::isRegularFile)
+                        .forEach(f -> process(f, cmd.hasOption('p'), outdir)); }
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            usage(options);
         }
+    }
+
+    private static void process(Path file, boolean paginate, String outdir)  {
+        String fileName = file.getFileName().toString().replaceAll("\\.xml", "");
+        outdir = prepareOutputDir(paginate, outdir, fileName);
+
+        List<Page> pages = getPages(file.toString());
 
         try {
-            String inputFile = args[0];
-            String outDir = args[1];
+            if (! paginate) {
+                FileWriter fw = new FileWriter(new File(outdir + fileName + ".txt"));
+                for (Page p: pages)
+                    fw.write(p.getContent() + "\n");
+            } else {
+                for (Page p : pages)
+                    p.write(outdir + fileName + "_p");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static List<Page> getPages(String fileName) {
+        TextExtracter tex = null;
+        try {
+            tex = TextExtracter.create(fileName);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        return tex.formatPages(true);
+    }
+
+    private static String prepareOutputDir(boolean paginate, String outdir, String fileName) {
+        if (! outdir.endsWith("/"))
+            outdir += '/';
+        if (paginate)
+            outdir += fileName + '/';
+        if (! outdir.isEmpty()) {
+            Path path = Paths.get(outdir);
+            if (!Files.exists(path)) {
+                try {
+                    Files.createDirectories(Paths.get(outdir));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return outdir;
+    }
+
+    private static void fileToDir(String inputFile, String outDir) {
+        try {
             if (! outDir.endsWith("/"))
                 outDir += '/';
             Path path = Paths.get(outDir);

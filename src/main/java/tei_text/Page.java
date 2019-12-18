@@ -19,7 +19,6 @@ public class Page {
     private static String pSpace = "\\s+" + pbMarker;
     private static String pDefault = pbMarker;
     private static String noteStr = "(.*)<NOTE (\\([0-9]+\\))>([^<]*)</NOTE>(.*)";
-    private static Pattern notePattern = Pattern.compile(noteStr, Pattern.MULTILINE);
     private List<Note> notes;
 
 
@@ -95,24 +94,6 @@ public class Page {
         String content =  elts.stream().map(e -> contentString(e)).collect(Collectors.joining("\n"));
         content = resolvePageBreaks(content);
         return content + "\n\n" + notes.stream().map(n -> noteContent(n)).collect(Collectors.joining("\n\n"));
-    }
-
-    /**
-     * pulls notes out of paragraphs.
-     *
-     * The note's occurrence in a paragraph is marked by the note's identifier in brackets.
-     * The note itself is placed after the paragraph.
-     */
-    private String resolveNotes(String content) {
-        LinkedList<String> notes = new LinkedList<>();
-        Matcher m = notePattern.matcher(content);
-        while (m.find()) {
-            content = m.group(1) + m.group(2) + m.group(4);
-            notes.addFirst(m.group(2) + " " + m.group(3));
-            m = notePattern.matcher(content);
-        }
-        content = content + "\n\n" + notes.stream().collect(Collectors.joining("\n\n"));
-        return content;
     }
 
     private String resolvePageBreaks(String content) {
