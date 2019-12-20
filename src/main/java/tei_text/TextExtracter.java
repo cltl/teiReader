@@ -39,7 +39,8 @@ public class TextExtracter {
      * @return  a list of paragraphs, headings a page breaks
      */
     List<Object> topParagraphsAndHeadings() {
-        Body b = (Body) tei.getText().getAnchorsAndGapsAndFigures().get(0);
+        Body b = (Body) tei.getText().getAnchorsAndGapsAndFigures().stream()
+                .filter(x -> x instanceof Body).findFirst().orElse(null);
         return b.getArgumentsAndBylinesAndDatelines().stream()
                 .map(x -> (Div) x)
                 .map(d -> d.getArgumentsAndBylinesAndDatelines())

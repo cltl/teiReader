@@ -13,7 +13,13 @@ This will generate code for binding TEI XML elements to Java objects, as well as
 
 Binding was tested with `xjc` version 2.3.1 under Java 10. Compilation may run under Java 9, but this was not tested.
 
-To extract text from a TEI file, run:
+The executable jar file takes three arguments:
+
+* [-i]: input file or directory; 
+* [-d] (optional): output directory; 
+* [-p] (optional): pagination flag; this will create one output text file per page in the input file 
+
+The `./extract_text.sh` script is set to extract one text file per input file into an output directory 'out-dir':
 
 >   bash extract_text.sh [path-to-TEI-input-file] [out-dir]
   
@@ -24,7 +30,7 @@ The code relies on [Jaxb](https://javaee.github.io/jaxb-v2/) to map the TEI XML 
 
 >   mvn clean compile
 
-Code binding relies on a XSD schema for the input TEI files, and on a bindings file. The schema and bindings are located in `./src/resources/teixlite/`.
+Code binding relies on a XSD schema for the input TEI files, and on a bindings file. The schema and bindings are located in `./src/main/resources/teixlite/`.
 
 ## Binding schema 
 
