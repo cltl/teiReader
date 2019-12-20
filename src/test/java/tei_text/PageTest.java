@@ -8,6 +8,7 @@ import xjc.tei2.P;
 import xjc.tei2.Pb;
 
 import javax.xml.bind.JAXBException;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +17,7 @@ class PageTest {
     protected static List<Page> pages;
     static String testDir = "src/test/resources/";
     static String testFile = testDir + "diary.xml";
+    static String testFile2 = testDir + "embed_notes.xml";
     int startPage = 0;    // TODO update once cf can be processed
 
 
@@ -115,7 +117,38 @@ class PageTest {
                 "Hadden wij beghonnen an cooplieden goedt,[Fameuse briefkins.]\n" +
                 "Ende der kercken beelden laeten met vreden,\n" +
                 "Ons handen ghewasschen in papens bloedt,\n" +
-                "Zoo waeren wij heeren van dorpen en steden.\n\n";
+                "Zoo waeren wij heeren van dorpen en steden.";
         assertEquals(content, expected);
+    }
+
+    @Test
+    void testListWithPageBreak() {
+        Page page14 = pages.get(startPage + 13);
+        assertEquals(page14.getElts().size(), 1);
+        assertTrue(page14.getElts().get(0) instanceof P);
+        String content = page14.getContent();
+        String expected ="Zur Nachweisung (...) geleistet:\n" +
+                "1o. ‘De Registers Utrecht 1325-1336’\n" +
+                "2o. J.u.J.I. van Doorninck\n" +
+                "3o. Das\n" +
+                "4o. P.N. van Doorninck\n" +
+                "5o. J.W. Racer\n";
+        assertEquals(content, expected);
+    }
+
+    @Test
+    void testEmbeddedNotesFailure() {
+        TextExtracter tex = null;
+        try {
+            tex = TextExtracter.create(testFile2);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        List<Page> pages2 = tex.formatPages(true);
+        Page page = pages2.stream().filter(p -> p.getPageNumber().equals("159")).findFirst().orElse(null);
+        assertEquals(page.getElts().size(), 1);
+        assertThrows(ConcurrentModificationException.class, () -> {
+            String content = page.getContent();
+        });
     }
 }

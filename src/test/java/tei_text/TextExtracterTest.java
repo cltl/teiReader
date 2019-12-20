@@ -19,13 +19,13 @@ class TextExtracterTest {
         try {
             TextExtracter tex = TextExtracter.create(testFile);
             List<Object> paragraphs = tex.topParagraphsAndHeadings();
-            assertEquals(paragraphs.size(), 43);
+            assertEquals(paragraphs.size(), 44);
 
             paragraphs = tex.shiftPageBreaks(paragraphs);
-            assertEquals(paragraphs.size(), 52);
+            assertEquals(paragraphs.size(), 54);
 
             List<Page> pages = tex.splitPages(paragraphs);
-            assertEquals(pages.size(), 14);
+            assertEquals(pages.size(), 15);
 
         } catch (JAXBException e) {
             e.printStackTrace();

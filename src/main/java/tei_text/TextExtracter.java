@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,9 +21,11 @@ import java.util.stream.Stream;
 
 public class TextExtracter {
     TEI2 tei;
+    String fileName;
 
-    TextExtracter(TEI2 tei) {
+    TextExtracter(TEI2 tei, String fileName) {
         this.tei = tei;
+        this.fileName = fileName;
     }
 
     private boolean isToExtract(Object e) {
@@ -30,7 +34,7 @@ public class TextExtracter {
 
     public static TextExtracter create(String xml) throws JAXBException {
         TEI2 tei = load(xml);
-        return new TextExtracter(tei);
+        return new TextExtracter(tei, xml);
     }
 
     /**
@@ -41,12 +45,18 @@ public class TextExtracter {
     List<Object> topParagraphsAndHeadings() {
         Body b = (Body) tei.getText().getAnchorsAndGapsAndFigures().stream()
                 .filter(x -> x instanceof Body).findFirst().orElse(null);
-        return b.getArgumentsAndBylinesAndDatelines().stream()
-                .map(x -> (Div) x)
-                .map(d -> d.getArgumentsAndBylinesAndDatelines())
-                .flatMap(x -> x.stream())
-                .filter(e -> isToExtract(e))
-                .collect(Collectors.toList());
+        try {
+            return b.getArgumentsAndBylinesAndDatelines().stream()
+                    .map(x -> (Div) x)
+                    .map(d -> d.getArgumentsAndBylinesAndDatelines())
+                    .flatMap(x -> x.stream())
+                    .filter(e -> isToExtract(e))
+                    .collect(Collectors.toList());
+        } catch (ClassCastException e) {
+            System.out.println("error extracting top paragraphs from file: " + fileName);
+            e.printStackTrace();
+            return Collections.EMPTY_LIST;
+        }
     }
 
     /**
@@ -54,23 +64,33 @@ public class TextExtracter {
      * Embedded page breaks are appended after the paragraphs they are extracted from.
      * If multiple page breaks are embedded in the same paragraph, only the last page break is appended.
      * The embedded page breaks are kept within the paragraphs (they are duplicated, not removed).
+     * Page breaks are expected in paragraphs or lists contained in paragraphs
      * @param paragraphs    a list of paragraphs, headings and page breaks
      * @return  a list of reformatted paragraphs, with isolated page breaks
      */
     List<Object> shiftPageBreaks(List<Object> paragraphs) {
         List<Object> shifted = new LinkedList<>();
+
         for (Object p: paragraphs) {
             shifted.add(p);
             if (p instanceof P) {
                 List<Object> content = ((P) p).getContent();
                 List<Pb> pageBreaks = new LinkedList<>();
-                if (content.stream().anyMatch(x -> x instanceof Pb)) {
-                    for (Object c : content) {
-                        if (c instanceof Pb)
-                            pageBreaks.add((Pb) c);
-                    }
-                    shifted.add(((LinkedList<Pb>) pageBreaks).getLast());
+                for (Object o: content) {
+                    if (o instanceof xjc.tei2.List) {
+                        for (Object elt: ((xjc.tei2.List) o).getAnchorsAndGapsAndFigures()) {
+                            if (elt instanceof Item) {
+                                for (Object it: ((Item) elt).getContent()) {
+                                    if (it instanceof Pb)
+                                        pageBreaks.add((Pb) it);
+                                }
+                            }
+                        }
+                    } else if (o instanceof Pb)
+                        pageBreaks.add((Pb) o);
                 }
+                if (! pageBreaks.isEmpty())
+                    shifted.add(((LinkedList<Pb>) pageBreaks).getLast());
             }
         }
         return shifted;
@@ -153,6 +173,12 @@ public class TextExtracter {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error while extracting text from file: " + file.getFileName());
+            e.printStackTrace();
+        } catch (ConcurrentModificationException e) {
+            System.out.println("Error while processing file: " + file.getFileName());
+            e.printStackTrace();
         }
     }
 
@@ -161,6 +187,7 @@ public class TextExtracter {
         try {
             tex = TextExtracter.create(fileName);
         } catch (JAXBException e) {
+            System.out.println("Cannot create text extracter for " + fileName);
             e.printStackTrace();
         }
         return tex.formatPages(true);
