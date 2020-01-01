@@ -8,7 +8,7 @@
 #  - input TEI file or directory; input files must have a '.xml' extension
 # Options:
 #  - d: output directory for extracted text files
-#  - p: write one file per page
+#  - p: paginate one file per page
 #
 # Example usages are provided below
 # --------------------------------------------------------------------
