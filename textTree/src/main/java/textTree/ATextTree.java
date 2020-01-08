@@ -1,4 +1,4 @@
-package text_tree;
+package textTree;
 
 
 import java.util.List;

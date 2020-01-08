@@ -1,15 +1,12 @@
 package tei_text;
 
-import org.junit.jupiter.api.Test;
-import text_tree.FootNote;
-import text_tree.IText;
-import text_tree.PageBreak;
-import text_tree.TextTree;
+import baseExtraction.TextHandler;
+import textTree.*;
 
-import javax.xml.bind.JAXBException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TextHandlerTest {
@@ -22,11 +19,8 @@ class TextHandlerTest {
 
     @Test
     public void testShiftPageBreaks() {
-        try {
-            handler = TextHandler.create(TextExtracter.load(testFile), false, false);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
+        TextExtracter te = new TextExtracter();
+        handler = te.createTextHandler(testFile, false, false);
 
         List<IText> nodesWithPageBreaks = getAllNodesWithPageBreaks(handler);
         assertEquals(nodesWithPageBreaks.size(), 15);
@@ -72,11 +66,8 @@ class TextHandlerTest {
 
     @Test
     public void testShiftNotes() {
-        try {
-            handler = TextHandler.create(TextExtracter.load(testFile), false, true);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
+        TextExtracter te = new TextExtracter();
+        handler = te.createTextHandler(testFile, false, true);
 
         List<IText> nodesWithNotes = getAllNodesWithNotes(handler.getTextTree());
         assertEquals(nodesWithNotes.size(), 4);
@@ -105,11 +96,9 @@ class TextHandlerTest {
 
     @Test
     public void testEmbeddedNotes() {
-        try {
-            handler = TextHandler.create(TextExtracter.load(testFile2), false, true);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
+        TextExtracter te = new TextExtracter();
+        handler = te.createTextHandler(testFile2, false, true);
+
         List<IText> nodesWithNotes = getAllNodesWithNotes(handler.getTextTree());
         assertEquals(nodesWithNotes.size(), 5);
 

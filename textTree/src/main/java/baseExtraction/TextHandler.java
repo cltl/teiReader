@@ -1,8 +1,6 @@
-package tei_text;
+package baseExtraction;
 
-import text_tree.IText;
-import text_tree.TextTreeFactory;
-import xjc.tei2.TEI2;
+import textTree.IText;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,19 +20,19 @@ public class TextHandler {
         this.shiftFootNotes = extractFootNotes;
     }
 
-    static TextHandler create(TEI2 tei, boolean paginate, boolean extractFootNotes) {
-        return new TextHandler(TextTreeFactory.create(tei), paginate, extractFootNotes);
+    public static TextHandler create(IText textTree, boolean paginate, boolean extractFootNotes) {
+        return new TextHandler(textTree, paginate, extractFootNotes);
     }
 
     public IText getTextTree() {
         return textTree;
     }
 
-    void process() {
+    public void process() {
         textTree.shiftChildren(shiftPageBreaks, shiftFootNotes);
     }
 
-    void write(String outFile) throws IOException {
+    public void write(String outFile) throws IOException {
         if (paginate) {
             outFile += paginationID;
             FileWriter fw = new FileWriter(new File(outFile + "0" + extension));

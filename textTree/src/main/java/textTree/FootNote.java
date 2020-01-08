@@ -1,4 +1,4 @@
-package text_tree;
+package textTree;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,6 +13,10 @@ public class FootNote implements IText {
     FootNote(String id, ATextTree textTree) {
         this.id = id;
         this.textTree = textTree;
+    }
+
+    public static FootNote create(String id, ATextTree content) {
+        return new FootNote(id, content);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package text_tree;
+package textTree;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,6 +22,9 @@ public class TextTree extends ATextTree {
         this.movablePageBreaks = shiftPageBreaks;
     }
 
+    public static TextTree create(List<IText> children, String separator, String prefix, String suffix, boolean shiftPageBreaks) {
+        return new TextTree(children, separator, prefix, suffix, shiftPageBreaks);
+    }
     public boolean hasMovablePageBreaks() {
         return movablePageBreaks;
     }

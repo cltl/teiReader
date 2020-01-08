@@ -1,28 +1,20 @@
-package text_tree;
+package tei_text;
 
+import textTree.*;
 import xjc.tei2.*;
 
 import java.util.stream.Collectors;
 
 public class TextTreeFactory {
 
-    static ATextTree createTextLeaf(String content, String separator, String prefix, String suffix) {
-        return new TextLeaf(content, prefix, suffix);
-    }
-
-    public static FootNote createFootNote(String id, ATextTree content) {
-        return new FootNote(id, content);
-    }
-
-    public static PageBreak createPageBreak(String n) {
-        return new PageBreak(n);
-    }
-
     static ATextTree create(java.util.List<Object> elements, String separator, String prefix, String suffix, boolean shiftPageBreaks) {
         if (elements.isEmpty())
-            return new TextLeaf("", prefix, suffix);
-        return new TextTree(elements.stream().map(x -> create(x)).collect(Collectors.toList()),
-                separator, prefix, suffix, shiftPageBreaks);
+            return TextLeaf.create("", prefix, suffix);
+        return TextTree.create(createLoop(elements), separator, prefix, suffix, shiftPageBreaks);
+    }
+
+    private static java.util.List<IText> createLoop(java.util.List<Object> elements) {
+        return elements.stream().map(TextTreeFactory::create).collect(Collectors.toList());
     }
 
     public static IText create(Object o) {
@@ -30,9 +22,9 @@ public class TextTreeFactory {
             return create(((TEI2) o).getText().getAnchorsAndGapsAndFigures().stream()
                     .filter(x -> x instanceof Body).findFirst().orElse(null));
         if (o instanceof String)
-            return createTextLeaf(((String) o).replace("\n", ""), "", "", "");
+            return TextLeaf.create(((String) o).replace("\n", ""),  "", "");
         else if (o instanceof Lb)
-            return createTextLeaf("\n", "", "", "");
+            return TextLeaf.create("\n", "",  "");
         if (o instanceof Body)
             return create(((Body) o).getArgumentsAndBylinesAndDatelines(), "\n", "", "", false);
         else if (o instanceof Div)
@@ -67,15 +59,15 @@ public class TextTreeFactory {
         else if (o instanceof Note) {
             Note n = (Note) o;
             if (n.getPlace().equals("foot"))
-                return createFootNote(n.getN(), create(n.getContent(), "", "\n", "\n", true));
+                return FootNote.create(n.getN(), create(n.getContent(), "", "\n", "\n", true));
             else
                 return create(n.getContent(), "", " [", "]", true);
         } else if (o instanceof Figure)
-            return createTextLeaf("", "","[FIGURE]", "");
+            return TextLeaf.create("","[FIGURE]", "");
         else if (o instanceof InterpGrp)
             return NullText.getInstance();
         else if (o instanceof Pb)
-            return createPageBreak(((Pb) o).getN());
+            return PageBreak.create(((Pb) o).getN());
         else
             throw new IllegalArgumentException("Found unexpected element: " + o.getClass());
     }

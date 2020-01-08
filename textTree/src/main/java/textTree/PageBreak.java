@@ -1,46 +1,36 @@
-package text_tree;
+package textTree;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class TextLeaf extends ATextTree {
-    String content;
+public class PageBreak implements IText {
+    String pageNumber;
 
-    TextLeaf(String content, String prefix, String suffix) {
-        super(prefix, suffix);
-        this.content = content;
+    PageBreak(String pageNumber) {
+        this.pageNumber = pageNumber;
     }
 
-    public String getContent() {
-        return content;
+    public static PageBreak create(String n) {
+        return new PageBreak(n);
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    @Override
-    public ATextTree with(String prefix, String suffix) {
-        return new TextLeaf(this.content, prefix, suffix);
-    }
-
-    @Override
     public String content() {
-        return prefix + content + suffix;
+        return "";
     }
 
     @Override
     public void shiftChildren(boolean shiftPageBreaks, boolean shiftFootNotes) {
-
     }
 
     @Override
     public FileWriter paginate(FileWriter fw, String filePfx) {
         try {
-            fw.write(content());
+            fw.close();
+            fw = new FileWriter(new File(filePfx + pageNumber + ".txt"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,11 +43,10 @@ public class TextLeaf extends ATextTree {
             return Collections.singletonList(this);
         else
             return Collections.EMPTY_LIST;
+
     }
 
-    @Override
-    protected TextLeaf rightMostLeaf() {
-        return this;
+    public String getPageNumber() {
+        return pageNumber;
     }
-
 }

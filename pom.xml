@@ -6,7 +6,16 @@
 
     <groupId>com.github.cltl</groupId>
     <artifactId>chronicles-reader</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <!-- missives project, based on tei_lite.xsd (TEI) -->
+        <module>missives</module>
+        <!-- chronicles project, based on teixlite.xsd (TEI2) -->
+        <module>chronicles</module>
+        <!-- TEI2Text tree manipulation, used by both projects -->
+        <module>textTree</module>
+    </modules>
 
     <properties>
         <maven.compiler.release>8</maven.compiler.release>
@@ -15,31 +24,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <version>0.14.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <extension>true</extension>
-                    <schemaDirectory>src/main/resources/teixlite</schemaDirectory>
-                    <schemaIncludes>
-                        <include>teixlite.xsd</include>
-                    </schemaIncludes>
-                    <bindingDirectory>src/main/resources/teixlite</bindingDirectory>
-                    <bindingIncludes>
-                        <include>bindings.xjb</include>
-                    </bindingIncludes>
-                    <generateDirectory>target/generated-sources</generateDirectory>
-                    <generatePackage>xjc.tei2</generatePackage>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -50,47 +34,7 @@
                     <target>8</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.9</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${basedir}/target/generated-sources</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>tei_text.TextExtracter</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
     </build>
     <dependencies>

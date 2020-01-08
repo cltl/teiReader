@@ -1,4 +1,4 @@
-package text_tree;
+package textTree;
 
 import java.io.FileWriter;
 import java.util.List;
