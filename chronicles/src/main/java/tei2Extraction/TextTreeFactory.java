@@ -1,4 +1,4 @@
-package tei_text;
+package tei2Extraction;
 
 import textTree.*;
 import xjc.tei2.*;

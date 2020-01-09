@@ -63,6 +63,10 @@ public abstract class ATextExtracter {
         } catch (ConcurrentModificationException e) {
             System.out.println("Error while processing file: " + file.getFileName());
             e.printStackTrace();
+        } catch (NullPointerException e) {
+            System.out.println("Error while processing file: " + file.getFileName());
+            e.printStackTrace();
+
         }
     }
 

@@ -1,8 +1,8 @@
-package tei_text;
+package teiExtraction;
 
 import baseExtraction.ATextExtracter;
 import textTree.IText;
-import xjc.tei2.*;
+import xjc.tei.TEI;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,10 +24,10 @@ public class TextExtracter extends ATextExtracter {
         File file = new File(xml);
         IText iText = null;
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(TEI2.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(TEI.class);
             System.setProperty("javax.xml.accessExternalDTD", "all");
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            TEI2 tei = (TEI2) jaxbUnmarshaller.unmarshal(file);
+            TEI tei = (TEI) jaxbUnmarshaller.unmarshal(file);
             iText = TextTreeFactory.create(tei);
         } catch (JAXBException e) {
             e.printStackTrace();

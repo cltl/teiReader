@@ -45,6 +45,9 @@ public class TextTree extends ATextTree {
 
     @Override
     public void shiftChildren(boolean shiftPageBreaks, boolean shiftFootNotes) {
+        //FIXME the problem for the tei files is that notes are already extracted
+        // -> we don't want to shift the notes then, only to resolve page breaks
+        // the FootNote objects are useful for this
         if (children.stream().anyMatch(c -> c instanceof FootNote)) {
             shiftNotesOrChangeToText(shiftFootNotes);
         }
@@ -89,7 +92,7 @@ public class TextTree extends ATextTree {
         } else {
             List<IText> newChildren = new LinkedList<>();
             for (IText c: children) {
-                if (c instanceof FootNote)
+                if (c instanceof FootNote) // FIXME this does not work with null-id footnotes
                     newChildren.add(((FootNote) c).getTextTree().with(" [" + ((FootNote) c).getId() + " ", "]"));
                 else
                     newChildren.add(c);

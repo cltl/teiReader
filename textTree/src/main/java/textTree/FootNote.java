@@ -21,7 +21,9 @@ public class FootNote implements IText {
 
     @Override
     public String content() {
-        return "[" + id + "]";
+        if (id != null)
+            return "[" + id + "]";
+        else return "";
     }
 
     @Override

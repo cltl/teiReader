@@ -9,8 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>chronicles</artifactId>
-
+    <artifactId>missives</artifactId>
     <build>
         <plugins>
             <plugin>
@@ -26,16 +25,16 @@
                 </executions>
                 <configuration>
                     <extension>true</extension>
-                    <schemaDirectory>src/main/resources/teixlite</schemaDirectory>
+                    <schemaDirectory>src/main/resources/tei_lite</schemaDirectory>
                     <schemaIncludes>
-                        <include>teixlite.xsd</include>
+                        <include>tei_lite.xsd</include>
                     </schemaIncludes>
-                    <bindingDirectory>src/main/resources/teixlite</bindingDirectory>
+                    <bindingDirectory>src/main/resources/tei_lite</bindingDirectory>
                     <bindingIncludes>
                         <include>bindings.xjb</include>
                     </bindingIncludes>
                     <generateDirectory>target/generated-sources</generateDirectory>
-                    <generatePackage>xjc.tei2</generatePackage>
+                    <generatePackage>xjc.tei</generatePackage>
                 </configuration>
             </plugin>
             <plugin>
@@ -65,7 +64,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>tei2Extraction.TextExtracter</mainClass>
+                            <mainClass>teiExtraction.TextExtracter</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

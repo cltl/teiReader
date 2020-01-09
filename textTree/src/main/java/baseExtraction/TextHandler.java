@@ -10,7 +10,7 @@ public class TextHandler {
     IText textTree;
     boolean paginate;
     final boolean shiftPageBreaks = true;
-    boolean shiftFootNotes = true;
+    boolean shiftFootNotes;
     final String extension = ".txt";
     final String paginationID = "_p";
 
