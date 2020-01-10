@@ -31,22 +31,16 @@ class TextHandlerTest {
         assertEquals(totalPageBreakCount, 16);
         assertEquals(totalPageBreakCount, pageBreaksFromNodes);
 
-        // nodes with movable, non-final page breaks before shifting page breaks
-        List<IText> nodesWithMovablePageBreaks = getNodesWithMovablePageBreaks(nodesWithPageBreaks);
-        assertEquals(nodesWithMovablePageBreaks.size(), 11);
-        int movableNodesNotEndingWithPageBreak = getNodesWithChildrenNotEndingWithPageBreak(nodesWithMovablePageBreaks);
-        assertEquals(movableNodesNotEndingWithPageBreak, 11);
+        // nodes with non-final page breaks
         int totalNodesNotEndingWithPageBreak = getNodesWithChildrenNotEndingWithPageBreak(nodesWithPageBreaks);
         assertEquals(totalNodesNotEndingWithPageBreak, 15);
 
         handler.process();
 
-        // all nodes with movable page-breaks now end with page breaks
+        // page breaks are not shifted
         nodesWithPageBreaks = getAllNodesWithPageBreaks(handler);
-        movableNodesNotEndingWithPageBreak = getNodesWithChildrenNotEndingWithPageBreak(getNodesWithMovablePageBreaks(nodesWithPageBreaks));
-        assertEquals(movableNodesNotEndingWithPageBreak, 0);
         totalNodesNotEndingWithPageBreak = getNodesWithChildrenNotEndingWithPageBreak(nodesWithPageBreaks);
-        assertEquals(totalNodesNotEndingWithPageBreak, 4);
+        assertEquals(totalNodesNotEndingWithPageBreak, 15);
 
     }
 
@@ -55,9 +49,6 @@ class TextHandlerTest {
                 .filter(t -> !(t.getChildren().get(t.getChildren().size() - 1) instanceof PageBreak)).count();
     }
 
-    private List<IText> getNodesWithMovablePageBreaks(List<IText> nodesWithPageBreaks) {
-        return nodesWithPageBreaks.stream().map(t -> (TextTree) t).filter(t -> t.hasMovablePageBreaks()).collect(Collectors.toList());
-    }
 
     private List<IText> getAllNodesWithPageBreaks(TextHandler handler) {
         return handler.getTextTree().findAll(t -> t instanceof TextTree
@@ -76,9 +67,9 @@ class TextHandlerTest {
         assertTrue(noteCountBeforeShifting >= nodesWithNotes.size());
         int childrenCountBeforeShifting = getChildrenCount(nodesWithNotes);
         handler.process();
-        // all FootNote objects have been replaced by ATextTree objects
-        assertEquals(getAllNodesWithNotes(handler.getTextTree()).size(), 0);
-        // the nodes that contained Notes get the notes' trees as added children
+        // FootNote objects still exist
+        assertEquals(getAllNodesWithNotes(handler.getTextTree()).size(), 4);
+        // they are added to the previous children count after extraction
 
         assertEquals(getChildrenCount(nodesWithNotes), noteCountBeforeShifting + childrenCountBeforeShifting);
     }
@@ -110,9 +101,9 @@ class TextHandlerTest {
         int childrenCountBeforeShifting = getChildrenCount(nodesWithNotes);
         handler.process();
 
-        // all FootNote objects have been replaced by ATextTree objects
-        assertEquals(getAllNodesWithNotes(handler.getTextTree()).size(), 0);
-        // the nodes that contained Notes get the notes' trees as added children
+        // FootNote objects still exist
+        assertEquals(getAllNodesWithNotes(handler.getTextTree()).size(), 5);
+        // the nodes are added to the previous children count
         assertEquals(getChildrenCount(nodesWithNotes), noteCountBeforeShifting + childrenCountBeforeShifting);
 
     }

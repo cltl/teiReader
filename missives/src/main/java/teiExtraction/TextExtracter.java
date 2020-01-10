@@ -25,7 +25,6 @@ public class TextExtracter extends ATextExtracter {
         IText iText = null;
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(TEI.class);
-            System.setProperty("javax.xml.accessExternalDTD", "all");
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             TEI tei = (TEI) jaxbUnmarshaller.unmarshal(file);
             iText = TextTreeFactory.create(tei);

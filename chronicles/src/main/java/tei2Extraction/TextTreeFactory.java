@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 
 public class TextTreeFactory {
 
-    static ATextTree create(java.util.List<Object> elements, String separator, String prefix, String suffix, boolean shiftPageBreaks) {
+    static ATextTree create(java.util.List<Object> elements, String separator, String prefix, String suffix) {
         if (elements.isEmpty())
             return TextLeaf.create("", prefix, suffix);
-        return TextTree.create(createLoop(elements), separator, prefix, suffix, shiftPageBreaks);
+        return TextTree.create(createLoop(elements), separator, prefix, suffix);
     }
 
     private static java.util.List<IText> createLoop(java.util.List<Object> elements) {
@@ -26,42 +26,42 @@ public class TextTreeFactory {
         else if (o instanceof Lb)
             return TextLeaf.create("\n", "",  "");
         if (o instanceof Body)
-            return create(((Body) o).getArgumentsAndBylinesAndDatelines(), "\n", "", "", false);
+            return create(((Body) o).getArgumentsAndBylinesAndDatelines(), "\n", "", "");
         else if (o instanceof Div)
-            return create(((Div) o).getArgumentsAndBylinesAndDatelines(), "\n", "", "", false);
+            return create(((Div) o).getArgumentsAndBylinesAndDatelines(), "\n", "", "");
         else if (o instanceof Lg) {
             Lg lg = ((Lg) o);
-            return create(lg.getArgumentsAndBylinesAndDatelines(), "\n", "[" + lg.getType().toUpperCase() + "]\n", "", true);
+            return create(lg.getArgumentsAndBylinesAndDatelines(), "\n", "[" + lg.getType().toUpperCase() + "]\n", "");
         } else if (o instanceof Row)
-            return create(((Row) o).getCellsAndTablesAndAnchors(), " ", "", "", true);
+            return create(((Row) o).getCellsAndTablesAndAnchors(), " ", "", "");
         else if (o instanceof Table)
-            return create(((Table) o).getHeadsAndAnchorsAndGaps(), "\n", "[TABLE]\n", "", true);
+            return create(((Table) o).getHeadsAndAnchorsAndGaps(), "\n", "[TABLE]\n", "");
         else if (o instanceof xjc.tei2.List)
-            return create(((xjc.tei2.List) o).getAnchorsAndGapsAndFigures(), "", "\n", "", true);
+            return create(((xjc.tei2.List) o).getAnchorsAndGapsAndFigures(), "", "\n", "");
         else if (o instanceof Label)
-            return create(((Label) o).getContent(), "", "", " ", true);
+            return create(((Label) o).getContent(), "", "", " ");
         else if (o instanceof Item)
-            return create(((Item) o).getContent(), "", "", "\n", true);
+            return create(((Item) o).getContent(), "", "", "\n");
         else if (o instanceof Q)
-            return create(((Q) o).getContent(), "", "", "", true);
+            return create(((Q) o).getContent(), "", "", "");
         else if (o instanceof Head)
-            return create(((Head) o).getContent(), "", "", "\n", true);
+            return create(((Head) o).getContent(), "", "", "\n");
         else if (o instanceof P)
-            return create(((P) o).getContent(), "", "", "\n", true);
+            return create(((P) o).getContent(), "", "", "\n");
         else if (o instanceof Hi)
-            return create(((Hi) o).getContent(), "", "", "", true);
+            return create(((Hi) o).getContent(), "", "", "");
         else if (o instanceof Cell)
-            return create(((Cell) o).getContent(), "", "", "", true);
+            return create(((Cell) o).getContent(), "", "", "");
         else if (o instanceof L)
-            return create(((L) o).getContent(), "", "", "", true);
+            return create(((L) o).getContent(), "", "", "");
         else if (o instanceof Name)
-            return create(((Name) o).getContent(), "", "", "", true);
+            return create(((Name) o).getContent(), "", "", "");
         else if (o instanceof Note) {
             Note n = (Note) o;
             if (n.getPlace().equals("foot"))
-                return FootNote.create(n.getN(), create(n.getContent(), "", "\n", "\n", true));
+                return FootNote.create(n.getN(), create(n.getContent(), "", "\n", "\n"));
             else
-                return create(n.getContent(), "", " [", "]", true);
+                return create(n.getContent(), "", " [", "]");
         } else if (o instanceof Figure)
             return TextLeaf.create("","[FIGURE]", "");
         else if (o instanceof InterpGrp)

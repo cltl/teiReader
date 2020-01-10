@@ -1,5 +1,7 @@
 package textTree;
 
+import baseExtraction.ChildVisitor;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
@@ -36,10 +38,6 @@ public class TextLeaf extends ATextTree {
         return prefix + content + suffix;
     }
 
-    @Override
-    public void shiftChildren(boolean shiftPageBreaks, boolean shiftFootNotes) {
-
-    }
 
     @Override
     public FileWriter paginate(FileWriter fw, String filePfx) {
@@ -59,9 +57,18 @@ public class TextLeaf extends ATextTree {
             return Collections.EMPTY_LIST;
     }
 
+
     @Override
-    protected TextLeaf rightMostLeaf() {
+    public void accept(ChildVisitor visitor) {
+
+    }
+
+    @Override
+    public TextLeaf rightMostLeaf() {
         return this;
     }
 
+    public TextLeaf withContent(String s) {
+        return new TextLeaf(s, prefix, suffix);
+    }
 }

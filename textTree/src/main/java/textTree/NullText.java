@@ -1,5 +1,7 @@
 package textTree;
 
+import baseExtraction.ChildVisitor;
+
 import java.io.FileWriter;
 import java.util.Collections;
 import java.util.List;
@@ -17,10 +19,6 @@ public class NullText implements IText {
     public String content() { return null; }
 
     @Override
-    public void shiftChildren(boolean shiftPageBreaks, boolean shiftFootNotes) {
-    }
-
-    @Override
     public FileWriter paginate(FileWriter fw, String file) {
         return fw;
     }
@@ -31,6 +29,10 @@ public class NullText implements IText {
             return Collections.singletonList(ourInstance);
         else
             return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public void accept(ChildVisitor visitor) {
     }
 
 }

@@ -1,5 +1,7 @@
 package textTree;
 
+import baseExtraction.ChildVisitor;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -22,13 +24,9 @@ public class FootNote implements IText {
     @Override
     public String content() {
         if (id != null)
-            return "[" + id + "]";
-        else return "";
-    }
-
-    @Override
-    public void shiftChildren(boolean shiftPageBreaks, boolean shiftFootNotes) {
-        // NOTE: footnote contents are transformed to ATextTree objects before their children are visited
+            return id + " " + textTree.content();
+        else
+            return textTree.content();
     }
 
     @Override
@@ -48,6 +46,11 @@ public class FootNote implements IText {
             matching.add(this);
         matching.addAll(this.textTree.findAll(p));
         return matching;
+    }
+
+    @Override
+    public void accept(ChildVisitor visitor) {
+        visitor.visit(this.textTree);
     }
 
     ATextTree getTextTree() {

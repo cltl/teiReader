@@ -1,5 +1,7 @@
 package textTree;
 
+import baseExtraction.ChildVisitor;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -13,20 +15,15 @@ import java.util.stream.Collectors;
 public class TextTree extends ATextTree {
     String separator;
     List<IText> children;
-    boolean movablePageBreaks;
 
-    TextTree(List<IText> children, String separator, String prefix, String suffix, boolean shiftPageBreaks) {
+    TextTree(List<IText> children, String separator, String prefix, String suffix) {
         super(prefix, suffix);
         this.children = children;
         this.separator = separator;
-        this.movablePageBreaks = shiftPageBreaks;
     }
 
-    public static TextTree create(List<IText> children, String separator, String prefix, String suffix, boolean shiftPageBreaks) {
-        return new TextTree(children, separator, prefix, suffix, shiftPageBreaks);
-    }
-    public boolean hasMovablePageBreaks() {
-        return movablePageBreaks;
+    public static TextTree create(List<IText> children, String separator, String prefix, String suffix) {
+        return new TextTree(children, separator, prefix, suffix);
     }
 
     public List<IText> getChildren() {
@@ -35,27 +32,12 @@ public class TextTree extends ATextTree {
 
     @Override
     public ATextTree with(String prefix, String suffix) {
-        return new TextTree(this.children, this.separator, prefix, suffix, this.movablePageBreaks);
+        return new TextTree(this.children, this.separator, prefix, suffix);
     }
 
     @Override
     public String content() {
         return prefix + children.stream().map(IText::content).filter(c -> c != null).collect(Collectors.joining(separator)) + suffix;
-    }
-
-    @Override
-    public void shiftChildren(boolean shiftPageBreaks, boolean shiftFootNotes) {
-        //FIXME the problem for the tei files is that notes are already extracted
-        // -> we don't want to shift the notes then, only to resolve page breaks
-        // the FootNote objects are useful for this
-        if (children.stream().anyMatch(c -> c instanceof FootNote)) {
-            shiftNotesOrChangeToText(shiftFootNotes);
-        }
-        if (movablePageBreaks && shiftPageBreaks && children.stream().anyMatch(c -> c instanceof PageBreak)) {
-            resolvePageBreakTransitions();
-            movePageBreaks();
-        }
-        children.stream().forEach(c -> c.shiftChildren(shiftPageBreaks, shiftFootNotes));
     }
 
     @Override
@@ -74,50 +56,16 @@ public class TextTree extends ATextTree {
         return fw;
     }
 
-    private void shiftNotesOrChangeToText(boolean shiftFootNotes) {
-        if (shiftFootNotes) {
-            children.addAll(children.stream()
-                    .filter(c -> c instanceof FootNote)
-                    .map(c -> ((FootNote) c))
-                    .map(fn -> fn.getTextTree().with("\n" + fn.content() + " ", ""))
-                    .collect(Collectors.toList()));
-            List<IText> newChildren = new LinkedList<>();
-            for (IText c: children) {
-                if (c instanceof FootNote)
-                    newChildren.add(new TextLeaf(c.content(), " ", ""));
-                else
-                    newChildren.add(c);
-            }
-            children = newChildren;
-        } else {
-            List<IText> newChildren = new LinkedList<>();
-            for (IText c: children) {
-                if (c instanceof FootNote) // FIXME this does not work with null-id footnotes
-                    newChildren.add(((FootNote) c).getTextTree().with(" [" + ((FootNote) c).getId() + " ", "]"));
-                else
-                    newChildren.add(c);
-            }
-            children = newChildren;
-        }
+
+    @Override
+    public void accept(ChildVisitor visitor) {
+        children = visitor.modifiesChildren(this.children);
+        children.stream().forEach(c -> c.accept(visitor));
     }
 
-    private void movePageBreaks() {
-        List<IText> pageBreaks = children.stream().filter(c -> c instanceof PageBreak).collect(Collectors.toList());
-        children.removeAll(pageBreaks);
-        children.addAll(pageBreaks);    // moves page breaks to the end of the list
-    }
-
-    private void resolvePageBreakTransitions() {
-        for (int i = 1; i < children.size(); i++) {
-            if (children.get(i) instanceof PageBreak && children.get(i - 1) instanceof ATextTree) {
-                TextLeaf rightMostLeaf = ((ATextTree) children.get(i - 1)).rightMostLeaf();
-                if (rightMostLeaf != null && rightMostLeaf.getContent().endsWith("-"))
-                    rightMostLeaf.setContent(rightMostLeaf.getContent().substring(0, rightMostLeaf.getContent().length() - 1));
-            }
-        }
-    }
-
-    protected TextLeaf rightMostLeaf() {
+    public TextLeaf rightMostLeaf() {
+        // TODO check TextTree depth is actually 1 when calling this method
+        // Perhaps better to filter ATextTree instances first, and then get the BOTTOM-right leaf
         List<TextLeaf> leaves = children.stream().filter(c -> c instanceof TextLeaf).map(c -> (TextLeaf) c).collect(Collectors.toList());
         if (leaves.isEmpty())
             return null;
@@ -134,4 +82,6 @@ public class TextTree extends ATextTree {
         matching.addAll(children.stream().map(c -> c.findAll(p)).flatMap(x -> x.stream()).collect(Collectors.toList()));
         return matching;
     }
+
+
 }

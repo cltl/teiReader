@@ -1,5 +1,7 @@
 package textTree;
 
+import baseExtraction.ChildVisitor;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,9 +24,6 @@ public class PageBreak implements IText {
         return "";
     }
 
-    @Override
-    public void shiftChildren(boolean shiftPageBreaks, boolean shiftFootNotes) {
-    }
 
     @Override
     public FileWriter paginate(FileWriter fw, String filePfx) {
@@ -43,6 +42,11 @@ public class PageBreak implements IText {
             return Collections.singletonList(this);
         else
             return Collections.EMPTY_LIST;
+
+    }
+
+    @Override
+    public void accept(ChildVisitor visitor) {
 
     }
 

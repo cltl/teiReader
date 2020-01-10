@@ -2,9 +2,9 @@ package teiExtraction;
 
 import baseExtraction.TextHandler;
 import org.junit.jupiter.api.Test;
-import textTree.IText;
-import textTree.PageBreak;
-import textTree.TextLeaf;
+import textTree.*;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +21,7 @@ class TextExtracterTest {
         handler = te.createTextHandler(testFile, false, false);
         IText ttree = handler.getTextTree();
         assertEquals(ttree.findAll(t -> t instanceof PageBreak).size(), 1);
-        assertEquals(ttree.findAll(t -> t instanceof TextLeaf).size(), 24);
+        assertEquals(ttree.findAll(t -> t instanceof TextLeaf).size(), 12);
     }
 
     @Test
@@ -29,7 +29,23 @@ class TextExtracterTest {
         TextExtracter te = new TextExtracter();
         handler = te.createTextHandler(testFile2, false, false);
         IText ttree = handler.getTextTree();
-        assertNotNull(ttree);
+        List<IText> ttrees = ttree.findAll(t -> t instanceof TextTree);
+
+        // Tree containing page break
+        TextTree pbTree = (TextTree) ttrees.get(2);
+        int pbIndex = handler.findIndex(pbTree.getChildren(), t -> t instanceof PageBreak, 1);
+        int textIndex = handler.findLastIndex(pbTree.getChildren(), t -> t instanceof ATextTree, pbIndex);
+        TextLeaf rightmostLeaf = ((ATextTree) pbTree.getChildren().get(textIndex)).rightMostLeaf();
+        assert rightmostLeaf.getContent().endsWith("-");
+
+        // contents prior to modification
+        String content1WithoutHyphen = rightmostLeaf.getContent().substring(0, rightmostLeaf.getContent().length() - 1);
+        String content2 = pbTree.getChildren().get(handler.findIndex(pbTree.getChildren(), t -> t instanceof ATextTree, pbIndex)).content();
+
+        handler.process();
+        pbTree = (TextTree) handler.getTextTree().findAll(t -> t instanceof TextTree).get(2);
+        assertTrue(pbTree.getChildren().get(textIndex).content().endsWith(content1WithoutHyphen + content2));
+
     }
 
 }
