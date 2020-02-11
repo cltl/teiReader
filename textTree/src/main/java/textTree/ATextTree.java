@@ -9,10 +9,20 @@ import java.util.function.Predicate;
 public abstract class ATextTree implements IText {
     String prefix;
     String suffix;
+    String teiId;
 
-    ATextTree(String prefix, String suffix) {
+    ATextTree(String prefix, String suffix, String teiId) {
         this.prefix = prefix;
         this.suffix = suffix;
+        this.teiId = teiId;
+    }
+
+    public String getTeiId() {
+        return teiId;
+    }
+
+    public void setTeiId(String teiId) {
+        this.teiId = teiId;
     }
 
     public static IText join(ATextTree tree1, ATextTree tree2) {

@@ -16,23 +16,45 @@ public class TextTree extends ATextTree {
     String separator;
     List<IText> children;
 
-    TextTree(List<IText> children, String separator, String prefix, String suffix) {
-        super(prefix, suffix);
+    TextTree(List<IText> children, String separator, String prefix, String suffix, String teiId) {
+        super(prefix, suffix, teiId);
         this.children = children;
         this.separator = separator;
+        if (teiId != null)
+            passId();
+    }
+
+    public static TextTree create(List<IText> children, String separator, String prefix, String suffix, String teiId) {
+        return new TextTree(children, separator, prefix, suffix, teiId);
     }
 
     public static TextTree create(List<IText> children, String separator, String prefix, String suffix) {
-        return new TextTree(children, separator, prefix, suffix);
+        return new TextTree(children, separator, prefix, suffix, null);
     }
 
     public List<IText> getChildren() {
         return children;
     }
 
+    public void setChildren(List<IText> children) {
+        this.children = children;
+    }
+
+
+    /**
+     * Passes TextTree TEI ids down to children with null TEI ids (missives)
+     * @return
+     */
+    private void passId() {
+        for (IText child: children) {
+            if (child instanceof ATextTree && ((ATextTree) child).getTeiId() == null)
+                ((ATextTree) child).setTeiId(teiId);
+        }
+    }
+
     @Override
     public ATextTree with(String prefix, String suffix) {
-        return new TextTree(this.children, this.separator, prefix, suffix);
+        return new TextTree(this.children, this.separator, prefix, suffix, this.teiId);
     }
 
     @Override
@@ -59,9 +81,11 @@ public class TextTree extends ATextTree {
 
     @Override
     public void accept(ChildVisitor visitor) {
-        children = visitor.modifiesChildren(this.children);
+        visitor.visit(this);
         children.stream().forEach(c -> c.accept(visitor));
     }
+
+
 
     public TextLeaf rightMostLeaf() {
         // TODO check TextTree depth is actually 1 when calling this method

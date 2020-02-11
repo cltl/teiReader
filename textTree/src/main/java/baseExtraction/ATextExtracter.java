@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 
 public abstract class ATextExtracter {
 
+    TextHandler handler;
+    TextWriter writer;
+
     public ATextExtracter() { }
 
     public abstract IText load(String xml);
@@ -24,8 +27,10 @@ public abstract class ATextExtracter {
 
     public void process(String[] args) {
         Options options = new Options();
-        options.addOption("p", false, "separate page files");
         options.addOption("n", false, "extract full notes");
+        options.addOption("c", false, "complete interrupted paragraphs");
+        options.addOption("p", false, "separate page files");
+        options.addOption("s", false, "split notes into separate files");
         options.addOption("d", true, "output directory");
         options.addOption("i", true, "input file / directory");
         CommandLineParser parser = new DefaultParser();
@@ -36,9 +41,11 @@ public abstract class ATextExtracter {
                 usage(options);
             }
             final String outdir = cmd.hasOption('d') ? cmd.getOptionValue('d') : "";
+            handler = TextHandler.create(cmd.hasOption('n'), cmd.hasOption('c'));
+            writer = TextWriter.create(cmd.hasOption('p'), cmd.hasOption('s'));
             try (Stream<Path> paths = Files.walk(Paths.get(cmd.getOptionValue('i')))) {
                 paths.filter(Files::isRegularFile)
-                        .forEach(f -> processFile(f, cmd.hasOption('p'), outdir, cmd.hasOption('n')));
+                        .forEach(f -> processFile(f, outdir, cmd.hasOption('p')));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -48,13 +55,12 @@ public abstract class ATextExtracter {
         }
     }
 
-    private void processFile(Path file, boolean paginate, String outdir, boolean extractFootNotes) {
+    private void processFile(Path file, String outdir, boolean paginate) {
         String fileName = file.getFileName().toString().replaceAll("\\.xml", "");
-        outdir = prepareOutputDir(paginate, outdir, fileName);
         try {
-            TextHandler handler = createTextHandler(file.toString(), paginate, extractFootNotes);
-            handler.process();
-            handler.write(outdir + fileName);
+            IText textTree = load(file.toString());
+            textTree = handler.process(textTree);
+            writer.write(textTree, outdir, fileName);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
@@ -68,28 +74,5 @@ public abstract class ATextExtracter {
             e.printStackTrace();
 
         }
-    }
-
-    public TextHandler createTextHandler(String file, boolean paginate, boolean extractFootNotes) {
-        IText itext = load(file);
-        return TextHandler.create(itext, paginate, extractFootNotes);
-    }
-
-    private static String prepareOutputDir(boolean paginate, String outdir, String fileName) {
-        if (! outdir.endsWith("/"))
-            outdir += '/';
-        if (paginate)
-            outdir += fileName + '/';
-        if (! outdir.isEmpty()) {
-            Path path = Paths.get(outdir);
-            if (!Files.exists(path)) {
-                try {
-                    Files.createDirectories(Paths.get(outdir));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return outdir;
     }
 }

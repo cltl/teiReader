@@ -50,7 +50,7 @@ public class FootNote implements IText {
 
     @Override
     public void accept(ChildVisitor visitor) {
-        visitor.visit(this.textTree);
+        textTree.accept(visitor);
     }
 
     ATextTree getTextTree() {

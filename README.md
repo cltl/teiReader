@@ -19,6 +19,8 @@ The executable jar file takes as arguments:
 * [-d] (optional): output directory; 
 * [-p] (optional): pagination flag; this will create one output text file per page in the input file; 
 * [-n] (optional): extracts notes and places them after the element they appear in; defaults to keeping notes inline in the text.
+* [-s] (optional): splits running text and notes into separate (paired) documents
+* [-c] (optional): completes paragraphs interrupted by page breaks (removing hyphens and merging paragraph parts)
 
 The `./extract_text.sh` script is set to call the `missives` jar, and extract one text file per input file into an output directory 'out-dir', without pagination or note extraction:
 
@@ -59,4 +61,4 @@ The following formatting decisions have been taken when extracting the text from
 Formatting is minimal:
 
 - Line-break elements are ignored
-- Text elements that are interrupted by page breaks are regrouped (hyphens marking line breaks are removed)
+- 'fw' elements are ignored

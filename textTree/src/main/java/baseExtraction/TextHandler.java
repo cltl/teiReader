@@ -7,60 +7,41 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class TextHandler implements ChildVisitor {
-    IText textTree;
-    boolean paginate;
-    final boolean resolvePageBreaks = true;
+    boolean resolvePageBreaks;
     boolean extractFootNotes;
-    final String extension = ".txt";
-    final String paginationID = "_p";
 
-    TextHandler(IText textTree, boolean paginate, boolean extractFootNotes) {
-        this.textTree = textTree;
-        this.paginate = paginate;
+
+    TextHandler(boolean extractFootNotes, boolean resolvePageBreaks) {
+
         this.extractFootNotes = extractFootNotes;
+        this.resolvePageBreaks = resolvePageBreaks;
     }
 
-    public static TextHandler create(IText textTree, boolean paginate, boolean extractFootNotes) {
-        return new TextHandler(textTree, paginate, extractFootNotes);
+    public static TextHandler create(boolean extractFootNotes, boolean resolvePageBreaks) {
+        return new TextHandler(extractFootNotes, resolvePageBreaks);
     }
 
-    public IText getTextTree() {
+    public IText process(IText textTree) {
+        textTree.accept(this);
         return textTree;
     }
 
-    public void process() {
-        visit(this.textTree);
-    }
-
-    public void write(String outFile) throws IOException {
-        if (paginate) {
-            outFile += paginationID;
-            FileWriter fw = new FileWriter(new File(outFile + "0" + extension));
-            fw = textTree.paginate(fw, outFile);
-            fw.close();
-        } else {
-            FileWriter fw = new FileWriter(new File(outFile + extension));
-            fw.write(textTree.content());
-            fw.close();
-        }
-    }
-
     @Override
-    public void visit(IText tree) {
-        tree.accept(this);
-    }
-
-    @Override
-    public List<IText> modifiesChildren(List<IText> children) {
+    public void visit(TextTree tree) {
+        List<IText> children = tree.getChildren();
         if (extractFootNotes)
             children = extractNotes(children);
         if (resolvePageBreaks)
             children = resolvePageBreakTransitions(children);
-        return children;
+
+        tree.setChildren(children);
     }
+
+
 
     /**
      * Lists footnotes, replaces footnotes in original location by their id, and appends complete footnotes to the list
@@ -79,7 +60,7 @@ public class TextHandler implements ChildVisitor {
                 newChildren.add(c);
         }
         newChildren.addAll(footnotes);
-        
+
         return newChildren;
     }
 
@@ -98,14 +79,19 @@ public class TextHandler implements ChildVisitor {
             if (textIndex != -1 && nextTextIndex != -1) {
                 TextLeaf rightMostLeaf = ((ATextTree) children.get(textIndex)).rightMostLeaf();
                 if (rightMostLeaf != null && rightMostLeaf.getContent().endsWith("-")) {
-                    rightMostLeaf.setContent(rightMostLeaf.getContent().substring(0, rightMostLeaf.getContent().length() - 1));
-                    ATextTree nextText = (ATextTree) children.remove(nextTextIndex);
-                    ATextTree currentText = (ATextTree) children.remove(textIndex);
-                    children.add(textIndex, ATextTree.join(currentText, nextText));
+                    Pattern p = Pattern.compile(".*[a-w]-$");   // excludes money amounts in missives
+                    if (p.matcher(rightMostLeaf.getContent()).matches()) {
+                        System.out.println(rightMostLeaf.getTeiId());
+                        rightMostLeaf.setContent(rightMostLeaf.getContent().substring(0, rightMostLeaf.getContent().length() - 1));
+                        ATextTree nextText = (ATextTree) children.remove(nextTextIndex);
+                        ATextTree currentText = (ATextTree) children.remove(textIndex);
+                        children.add(textIndex, ATextTree.join(currentText, nextText));
+                    }
                 }
             }
             pageBreak = findIndex(children, c -> c instanceof PageBreak, pageBreak + 1);
         }
         return children;
     }
+
 }

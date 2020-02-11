@@ -7,8 +7,7 @@
 # Provides example usages for the extraction of text for the chronicles
 # or missives. 
 # 
-# This script is set up to read missives, output them in a specified 
-# directory, without pagination or note extraction. 
+# This script is set up to read missives.
 #
 # Arguments:
 #  1- input TEI file or directory; input files must have a '.xml' extension
@@ -25,7 +24,7 @@ module=missives
 
 # Usage 2: reads from file or from directory,
 # outputs each file in the output directory specified by the second argument to this script
-bash scripts/tei2text.sh -m $module -i $1 -d $2 
+# bash scripts/tei2text.sh -m $module -i $1 -d $2 
 
 # Usage 3: reads from file or from directory,
 # the output directory is specified by the second argument to this script,
@@ -35,3 +34,9 @@ bash scripts/tei2text.sh -m $module -i $1 -d $2
 # Usage 4: as Usage 3, but notes are placed after their containing text,
 # rather than being kept inline.
 # bash scripts/tei2text.sh -m $module -i $1 -d $2 -p -n
+
+# Usage 5: as Usage 2, but paragraphs interrupted by page breaks are completed
+# bash scripts/tei2text.sh -m $module -i $1 -d $2 -c
+
+# Usage 6: as Usage 5, but notes are written to separate files
+bash scripts/tei2text.sh -m $module -i $1 -d $2 -s -c

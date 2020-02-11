@@ -6,9 +6,14 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public interface ChildVisitor {
-    void visit(IText tree);
 
-    List<IText> modifiesChildren(List<IText> textTree);
+
+    void visit(TextTree tree);
+    default void visit(TextLeaf tree) {}
+    default void visit(FootNote tree) {}
+    default void visit(NullText tree) {}
+    default void visit(PageBreak tree) {}
+
 
     default int findIndex(List<IText> children, Predicate<IText> textPredicate, int from) {
         for (int i = from; i < children.size(); i++) {

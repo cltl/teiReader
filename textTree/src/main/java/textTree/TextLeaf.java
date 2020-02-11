@@ -11,14 +11,19 @@ import java.util.function.Predicate;
 public class TextLeaf extends ATextTree {
     String content;
 
-    TextLeaf(String content, String prefix, String suffix) {
-        super(prefix, suffix);
+    TextLeaf(String content, String prefix, String suffix, String teiId) {
+        super(prefix, suffix, teiId);
         this.content = content;
     }
 
     public static TextLeaf create(String content, String prefix, String suffix) {
-        return new TextLeaf(content, prefix, suffix);
+        return new TextLeaf(content, prefix, suffix, null);
     }
+
+    public static TextLeaf create(String content, String prefix, String suffix, String teiId) {
+        return new TextLeaf(content, prefix, suffix, teiId);
+    }
+
 
     public String getContent() {
         return content;
@@ -30,7 +35,7 @@ public class TextLeaf extends ATextTree {
 
     @Override
     public ATextTree with(String prefix, String suffix) {
-        return new TextLeaf(this.content, prefix, suffix);
+        return new TextLeaf(this.content, prefix, suffix, this.teiId);
     }
 
     @Override
@@ -69,6 +74,6 @@ public class TextLeaf extends ATextTree {
     }
 
     public TextLeaf withContent(String s) {
-        return new TextLeaf(s, prefix, suffix);
+        return new TextLeaf(s, prefix, suffix, this.teiId);
     }
 }
