@@ -35,5 +35,11 @@ public class TextExtracter extends ATextExtracter {
         return iText;
     }
 
+    @Override
+    public IText extract(String file) {
+        IText textTree = load(file);
+        return handler.process(textTree);
+    }
+
 
 }

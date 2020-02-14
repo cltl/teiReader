@@ -20,7 +20,7 @@ class TextExtracterTest {
     @Test
     public void testShortTEIExtraction() {
         TextExtracter te = new TextExtracter();
-        IText ttree = te.load(testFile);
+        IText ttree = TextTreeFactory.create(te.load(testFile));
         assertEquals(ttree.findAll(t -> t instanceof PageBreak).size(), 1);
         assertEquals(ttree.findAll(t -> t instanceof TextLeaf).size(), 12);
         TextWriter writer = TextWriter.create(false, false);
@@ -34,7 +34,7 @@ class TextExtracterTest {
     @Test
     public void testPageMerging() {
         TextExtracter te = new TextExtracter();
-        IText ttree = te.load(testFile2);
+        IText ttree = TextTreeFactory.create(te.load(testFile2));
         handler = TextHandler.create(false, true);
 
         List<IText> ttrees = ttree.findAll(t -> t instanceof TextTree);
@@ -58,7 +58,7 @@ class TextExtracterTest {
     @Test
     public void testNoteSplitting() {
         TextExtracter te = new TextExtracter();
-        IText ttree = te.load(testFile);
+        IText ttree = TextTreeFactory.create(te.load(testFile));
         int nodeCount = ttree.findAll(x -> true).size();
         int notesCount = ttree.findAll(x -> x instanceof FootNote).size();
         assertEquals(nodeCount, 54);

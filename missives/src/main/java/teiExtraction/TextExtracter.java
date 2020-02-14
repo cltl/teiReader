@@ -10,9 +10,11 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 
 public class TextExtracter extends ATextExtracter {
+    PagedIndices pi;
 
     TextExtracter() {
         super();
+        this.pi = new PagedIndices();
     }
 
     public static void main(String[] args) {
@@ -20,19 +22,34 @@ public class TextExtracter extends ATextExtracter {
         te.process(args);
     }
 
-    public IText load(String xml) {
+    public TEI load(String xml) {
         File file = new File(xml);
-        IText iText = null;
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(TEI.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             TEI tei = (TEI) jaxbUnmarshaller.unmarshal(file);
-            iText = TextTreeFactory.create(tei);
+            return tei;
         } catch (JAXBException e) {
             e.printStackTrace();
         }
-        return iText;
+        return null;
     }
 
+    @Override
+    public IText extract(String fileName) {
+        TEI tei = load(fileName);
+        if (isIndex(tei)) {
+            IText iText = IndexTreeFactory.create(tei);
+            return pi.process(iText);
+        } else {
+            IText iText = TextTreeFactory.create(tei);
+            return handler.process(iText);
+        }
+    }
+
+    public static boolean isIndex(TEI tei) {
+        String title = (String) tei.getTeiHeader().getFileDesc().getTitleStmt().getTitles().get(0).getContent().get(0);
+        return title.startsWith("Index");
+    }
 
 }

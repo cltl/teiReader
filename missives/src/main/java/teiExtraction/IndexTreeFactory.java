@@ -6,7 +6,7 @@ import xjc.tei.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TextTreeFactory {
+public class IndexTreeFactory {
     static ATextTree create(java.util.List<Object> elements, String separator, String prefix, String suffix, String teiId) {
         if (elements.isEmpty())
             return TextLeaf.create("", prefix, suffix);
@@ -16,31 +16,31 @@ public class TextTreeFactory {
     static ATextTree createRow(java.util.List<Cell> elements, String separator, String prefix, String suffix, String teiId) {
         if (elements.isEmpty())
             return TextLeaf.create("", prefix, suffix);
-        return TextTree.create(elements.stream().map(TextTreeFactory::create).collect(Collectors.toList()), separator, prefix, suffix, teiId);
+        return TextTree.create(elements.stream().map(IndexTreeFactory::create).collect(Collectors.toList()), separator, prefix, suffix, teiId);
     }
 
     private static java.util.List<IText> createLoop(java.util.List<Object> elements) {
-        return elements.stream().map(TextTreeFactory::create).collect(Collectors.toList());
+        return elements.stream().map(IndexTreeFactory::create).collect(Collectors.toList());
     }
 
     public static IText create(Object o) {
         List<Object> a;
         if (o instanceof TEI) {
             a = ((TEI) o).getTexts().stream().map(t -> t.getIndicesAndInterpsAndInterpGrps()).flatMap(x -> x.stream()).collect(Collectors.toList());
-            return create(a, "\n", "", "", ((TEI) o).getId());
+            return create(a, "", "", "", ((TEI) o).getId());
         }
         if (o instanceof String)
             return TextLeaf.create(((String) o).replace("\n", ""),  "", "");
         if (o instanceof Body)
             return create(((Body) o).getIndicesAndInterpsAndInterpGrps(), "\n", "", "", ((Body) o).getId());
         else if (o instanceof Div)
-            return create(((Div) o).getBylinesAndDatelinesAndArguments(), "\n", "", "", ((Div) o).getId());
+            return create(((Div) o).getBylinesAndDatelinesAndArguments(), "", "", "", ((Div) o).getId());
         else if (o instanceof Lb)
-            return NullText.getInstance();
+            return TextLeaf.create("\n", "", "");
         else if (o instanceof Head)
-            return create(((Head) o).getContent(), "", "", "\n", ((Head) o).getId());
+            return create(((Head) o).getContent(), "", "", "", ((Head) o).getId());
         else if (o instanceof P)
-            return create(((P) o).getContent(), "", "", "\n", ((P) o).getId());
+            return create(((P) o).getContent(), "", "", "", ((P) o).getId());
         else if (o instanceof Hi)
             return create(((Hi) o).getContent(), "", "", "", ((Hi) o).getId());
         else if (o instanceof Cell)
@@ -54,9 +54,8 @@ public class TextTreeFactory {
         else if (o instanceof InterpGrp)
             return NullText.getInstance();
         else if (o instanceof Pb)
-            return PageBreak.create(((Pb) o).getN());
+            return NullText.getInstance();
         else
             throw new IllegalArgumentException("Found unexpected element: " + o.getClass());
     }
-
 }

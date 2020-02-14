@@ -12,12 +12,12 @@ import java.util.stream.Stream;
 
 public abstract class ATextExtracter {
 
-    TextHandler handler;
+    public TextHandler handler;
     TextWriter writer;
 
-    public ATextExtracter() { }
+    public ATextExtracter() {
 
-    public abstract IText load(String xml);
+    }
 
     private static void usage(Options options) {
         HelpFormatter formatter = new HelpFormatter();
@@ -45,7 +45,7 @@ public abstract class ATextExtracter {
             writer = TextWriter.create(cmd.hasOption('p'), cmd.hasOption('s'));
             try (Stream<Path> paths = Files.walk(Paths.get(cmd.getOptionValue('i')))) {
                 paths.filter(Files::isRegularFile)
-                        .forEach(f -> processFile(f, outdir, cmd.hasOption('p')));
+                        .forEach(f -> processFile(f, outdir));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -55,11 +55,12 @@ public abstract class ATextExtracter {
         }
     }
 
-    private void processFile(Path file, String outdir, boolean paginate) {
+    public abstract IText extract(String fileName);
+
+    private void processFile(Path file, String outdir) {
         String fileName = file.getFileName().toString().replaceAll("\\.xml", "");
         try {
-            IText textTree = load(file.toString());
-            textTree = handler.process(textTree);
+            IText textTree = extract(file.toString());
             writer.write(textTree, outdir, fileName);
         } catch (IOException e) {
             e.printStackTrace();
