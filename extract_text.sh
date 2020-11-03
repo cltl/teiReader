@@ -16,7 +16,7 @@
 # --------------------------------------------------------------------
 
 # module can be 'chronicles' or 'missives'
-module=missives
+module=chronicles
 
 # Usage 1: reads from file or from directory, outputs each file in 
 # the current directory (one output file per input file)
@@ -24,7 +24,7 @@ module=missives
 
 # Usage 2: reads from file or from directory,
 # outputs each file in the output directory specified by the second argument to this script
-# bash scripts/tei2text.sh -m $module -i $1 -d $2 
+bash scripts/tei2text.sh -m $module -i $1 -d $2 
 
 # Usage 3: reads from file or from directory,
 # the output directory is specified by the second argument to this script,
@@ -39,4 +39,4 @@ module=missives
 # bash scripts/tei2text.sh -m $module -i $1 -d $2 -c
 
 # Usage 6: as Usage 5, but notes are written to separate files
-bash scripts/tei2text.sh -m $module -i $1 -d $2 -s -c
+# bash scripts/tei2text.sh -m $module -i $1 -d $2 -s -c

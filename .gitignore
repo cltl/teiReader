@@ -3,3 +3,6 @@
 **/*.iml
 *.ipr
 .idea
+
+**/.DS_Store
+local
