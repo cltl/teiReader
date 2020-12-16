@@ -51,6 +51,7 @@ fi
 args="-i $input "
 if [[ ! -z ${outdir} ]]; then
   args="$args-d $outdir "
+  [[ ! -d $outdir ]] && mkdir -p $outdir
 fi
 if [[ "$paginate" == 1 ]]; then
   args="$args-p "

@@ -40,7 +40,7 @@ public abstract class ATextExtracter {
                 System.out.println("Please specify an input file or directory");
                 usage(options);
             }
-            final String outdir = cmd.hasOption('d') ? cmd.getOptionValue('d') : "";
+            final String outdir = cmd.hasOption('d') ? cmd.getOptionValue('d') : "./";
             handler = TextHandler.create(cmd.hasOption('n'), cmd.hasOption('c'));
             writer = TextWriter.create(cmd.hasOption('p'), cmd.hasOption('s'));
             try (Stream<Path> paths = Files.walk(Paths.get(cmd.getOptionValue('i')))) {
