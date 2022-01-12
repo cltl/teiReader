@@ -20,11 +20,11 @@ module=chronicles
 
 # Usage 1: reads from file or from directory, outputs each file in 
 # the current directory (one output file per input file)
-bash scripts/tei2text.sh -m $module -i $1
+# bash scripts/tei2text.sh -m $module -i $1
 
 # Usage 2: reads from file or from directory,
 # outputs each file in the output directory specified by the second argument to this script
-# bash scripts/tei2text.sh -m $module -i $1 -d $2 
+bash scripts/tei2text.sh -m $module -i $1 -d $2 
 
 # Usage 3: reads from file or from directory,
 # the output directory is specified by the second argument to this script,

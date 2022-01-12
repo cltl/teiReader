@@ -64,8 +64,10 @@ public class TextTreeFactory {
                 return create(n.getContent(), "", " [", "]");
         } else if (o instanceof Figure)
             return TextLeaf.create("","[FIGURE]", "");
-        else if (o instanceof InterpGrp)
+        else if (o instanceof InterpGrp || o instanceof Xptr)
             return NullText.getInstance();
+        else if (o instanceof Xref)
+            return create(((Xref) o).getContent(), "", "", "");
         else if (o instanceof Pb)
             return PageBreak.create(((Pb) o).getN());
         else

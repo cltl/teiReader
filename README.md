@@ -4,28 +4,17 @@ This repository provides code for the extraction of text from TEI files for the 
 
 ## Quick start
 
-Download the content of this repository, and run:
+Download the content of this repository, and compile the code:
 
 >   mvn clean package
 
+Run the `./extract_text.sh` script to extract text for the Chronicles:
 
-This will generate code for binding TEI XML elements to Java objects, as well as an executable jar for text extraction for both the `chronicles` and `missives` projects. 
+>   bash extract_text.sh [INPUT_DIR] [OUT_DIR]
 
-Binding was tested with `xjc` version 2.3.1 under Java 10, and `xjc` version 2.2.8 under Java 8.
+You can edit and modify this script for more options.  
 
-The executable jar file takes as arguments:
 
-* [-i]: input file or directory; 
-* [-d] (optional): output directory; 
-* [-p] (optional): pagination flag; this will create one output text file per page in the input file; 
-* [-n] (optional): extracts notes and places them after the element they appear in; defaults to keeping notes inline in the text.
-* [-s] (optional): splits running text and notes into separate (paired) documents
-* [-c] (optional): completes paragraphs interrupted by page breaks (removing hyphens and merging paragraph parts)
-
-The `./extract_text.sh` script is set to call the `missives` jar, and extract one text file per input file into an output directory 'out-dir', without pagination or note extraction:
-
->   bash extract_text.sh [path-to-TEI-input-file] [out-dir]
-  
 
 ## XML-Java binding and code generation
 
@@ -34,6 +23,26 @@ The code relies on [Jaxb](https://javaee.github.io/jaxb-v2/) to map the TEI XML 
 >   mvn clean compile
 
 Code binding relies on a XSD schema for the input TEI files, and on a bindings file. The schema and bindings are located in `./src/main/resources/` for each of the `chronicles` and `missives` modules.
+
+Binding was tested with `xjc` version 2.3.1 under Java 10, and `xjc` version 2.2.8 under Java 8.
+
+## Executable jar
+The `./extract_text.sh` script relies on an executable jar, which is created with the following command
+
+>   mvn clean package
+
+This generates the code for binding TEI XML elements to Java objects, as well as two executable jars for text extraction, one for the `chronicles` and the other for the `missives` project. 
+
+The executable jar file takes as arguments:
+
+```
+[-i]: input file or directory; 
+[-d] (optional): output directory; 
+[-p] (optional): pagination flag; this will create one output text file per page in the input file; 
+[-n] (optional): extracts notes and places them after the element they appear in; defaults to keeping notes inline in the text.
+[-s] (optional): splits running text and notes into separate (paired) documents
+[-c] (optional): completes paragraphs interrupted by page breaks (removing hyphens and merging paragraph parts)
+```
 
 ## Binding schema 
 
